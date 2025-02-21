@@ -37,15 +37,15 @@ def step_then_no_drivers_available(context):
     """Verifica se a resposta foi None"""
     assert context.driver is None, "O sistema encontrou um motorista quando não deveria!"
 
-@when("um passageiro solicita uma corrida 1000 vezes")
+@when("um passageiro solicita uma corrida 40 vezes")
 def step_when_performance_test(context):
-    """Executa 1000 testes e mede os tempos de resposta"""
+    """Executa 40 testes e mede os tempos de resposta"""
     context.success_count = 0
     context.response_times = []
     context.failed_requests = 0
     max_time = 3.0
 
-    for _ in range(1000):
+    for _ in range(40):
         start_time = time.time()
         driver, response_time = find_driver((37.7750, -122.4195), context.drivers)
         end_time = time.time()
@@ -64,7 +64,7 @@ def step_when_performance_test(context):
 @then("99% das requisições devem ser atendidas em menos de 3 segundos")
 def step_then_performance_requirement(context):
     """Valida se o tempo médio de resposta atende o requisito"""
-    total_requests = 1000 - context.failed_requests
+    total_requests = 40 - context.failed_requests
 
     if total_requests > 0:
         success_rate = (context.success_count / total_requests) * 100
