@@ -2,7 +2,7 @@ from behave import given, when, then
 import time
 import random
 import uuid
-from src.services.AverageWaitingTime import find_driver, drivers  # Certifique-se de que a função esteja na estrutura correta
+from src.services.AverageWaitingTime import find_driver
 
 @given("existem motoristas disponíveis")
 def step_given_drivers_available(context):
@@ -20,8 +20,12 @@ def step_given_no_drivers_available(context):
 
 @when("um passageiro solicita uma corrida")
 def step_when_passenger_requests_ride(context):
-    """Chama a função de pareamento de motorista"""
-    context.driver, context.response_time = find_driver((37.7750, -122.4195))
+    """Chama a função de pareamento de motorista e mede o tempo"""
+    start_time = time.time()
+    context.driver, context.response_time = find_driver((37.7750, -122.4195), context.drivers)
+    end_time = time.time()
+    
+    context.response_time = end_time - start_time
 
 @then("um motorista deve ser pareado com ele")
 def step_then_driver_is_paired(context):
@@ -43,14 +47,15 @@ def step_when_performance_test(context):
 
     for _ in range(1000):
         start_time = time.time()
-        driver, response_time = find_driver((37.7750, -122.4195))
+        driver, response_time = find_driver((37.7750, -122.4195), context.drivers)
         end_time = time.time()
+
+        elapsed_time = end_time - start_time
 
         if driver is None:
             context.failed_requests += 1
             continue
 
-        elapsed_time = end_time - start_time
         context.response_times.append(elapsed_time)
 
         if elapsed_time <= max_time:
@@ -68,7 +73,7 @@ def step_then_performance_requirement(context):
         success_rate = 0
         avg_response_time = 0
 
-    print(f"✅ Taxa de sucesso (respostas < 3s): {success_rate:.2f}%")
-    print(f"⏳ Tempo médio de resposta: {avg_response_time:.3f}s")
+    print(f"Taxa de sucesso (respostas < 3s): {success_rate:.2f}%")
+    print(f"Tempo médio de resposta: {avg_response_time:.3f}s")
 
     assert success_rate >= 99, "O sistema não atingiu 99% das respostas em menos de 3s!"
