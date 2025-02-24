@@ -1,6 +1,5 @@
 from behave import given, when, then
 import time
-import random
 import uuid
 from src.services.AverageWaitingTime import find_driver
 
@@ -47,7 +46,7 @@ def step_when_performance_test(context):
 
     for _ in range(40):
         start_time = time.time()
-        driver, response_time = find_driver((37.7750, -122.4195), context.drivers)
+        driver, response_time = find_driver((37.7750, -122.4195), context.drivers, release_delay=0)
         end_time = time.time()
 
         elapsed_time = end_time - start_time

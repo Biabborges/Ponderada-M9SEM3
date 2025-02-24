@@ -59,7 +59,7 @@ def release_driver(driver, delay=5):
     driver["available"] = True
 
 @circuit_breaker.call
-def find_driver(pickup_location, driver_list, max_wait_time=5):
+def find_driver(pickup_location, driver_list, max_wait_time=5, release_delay=5):
     start_time = time.time()
     while time.time() - start_time < max_wait_time:
         available_drivers = [driver for driver in driver_list if driver["available"]]
@@ -69,8 +69,10 @@ def find_driver(pickup_location, driver_list, max_wait_time=5):
             
             driver = random.choice(available_drivers)
             driver["available"] = False
-            threading.Thread(target=release_driver, args=(driver,)).start()
-            
+            if release_delay > 0:
+                threading.Thread(target=release_driver, args=(driver, release_delay)).start()
+            else:
+                driver["available"] = True
             return driver, simulated_time
         time.sleep(0.5)
     return None, None
@@ -113,4 +115,5 @@ def performance_test(runs=40, max_time=3.0):
     else:
         print("O requisito não funcional NÃO FOI ATENDIDO!")
 
-performance_test()
+if __name__ == "__main__":
+    performance_test()
